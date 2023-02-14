@@ -8,8 +8,8 @@ from keras.utils import load_img, img_to_array
 from keras.applications import ResNet50
 from learntools.deep_learning.decode_predictions import decode_predictions
 from IPython.display import Image, display
-
-
+from django.shortcuts import render
+from .forms import ImageForm
 size = 244
 
 def read_and_prep_images(img_paths):
@@ -24,11 +24,11 @@ def read_and_prep_images(img_paths):
 def home(request):
     return render(request, 'index.html')
 
-def getPredictions():
-    image_dir = 'C:\\Users\\Asma Ben Boubaker\\Desktop\\TitanicPredictionDjangoML\\titanic\\titanic\\train\\'
+def getPredictions(img):
+    image_dir = 'D:\\4twin\\s2\\pi\\Django-dog-breed-prediction\\titanic\\media\\images'
     
     img_paths = [join(image_dir, filename) for filename in 
-                            ['1.jpg',
+                            [img,
                             ]]
     image_size = 224
     #read_and_prep_images(img_paths, 244, 244)
@@ -47,3 +47,19 @@ def result(request):
     result = getPredictions()
 
     return render(request, 'result.html', {'result': result})
+def image_upload_view(request):
+    """Process images uploaded by users"""
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            # Get the current instance object to display in the template
+            img_obj = form.instance
+            image_name = img_obj.image.name.split('/')[-1]
+            print(image_name)
+            result = getPredictions(image_name)
+            print(result)
+            return render(request, 'index.html', {'form': form, 'img_obj': img_obj,'result':result})
+    else:
+        form = ImageForm()
+    return render(request, 'index.html', {'form': form})
