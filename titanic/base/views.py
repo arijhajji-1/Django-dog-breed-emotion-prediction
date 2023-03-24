@@ -8,8 +8,13 @@ from keras.utils import load_img, img_to_array
 from keras.applications import ResNet50
 from learntools.deep_learning.decode_predictions import decode_predictions
 from IPython.display import Image, display
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from django.shortcuts import render
 from .forms import ImageForm
+from django.http import JsonResponse
+import os
+
 size = 244
 
 def read_and_prep_images(img_paths):
@@ -25,19 +30,22 @@ def home(request):
     return render(request, 'index.html')
 
 def getPredictions(img):
-    image_dir = 'D:\\4twin\\s2\\pi\\Django-dog-breed-prediction\\titanic\\media\\images'
+    image_dir = 'D:\\4twin\s2\\pi\\validation2PI\\Pet-Connection-Backend\\public\\uploads\\'
     
-    img_paths = [join(image_dir, filename) for filename in 
-                            [img,
-                            ]]
-    image_size = 224
+    # img_paths = [join(image_dir, filename) for filename in 
+    #                         [img, 
+    #                         ]]
+    filename = default_storage.save(img.name, ContentFile(img.read()))
+    print(filename)
+    img_paths = [os.path.join(image_dir, filename)]
     #read_and_prep_images(img_paths, 244, 244)
     my_model = ResNet50(weights='imagenet')
     test_data = read_and_prep_images(img_paths)
+    #flat_data = test_data.reshape((test_data.shape[0], -1))
     preds = my_model.predict(test_data)
     
    
-    most_likely_labels = decode_predictions(preds, top=3, class_list_path='C:\\Users\\Asma Ben Boubaker\\input\\ResNet-50\\imagenet_class_index.json')
+    most_likely_labels = decode_predictions(preds, top=3, class_list_path='D:\\4twin\\s2\\pi\\TitanicPredictionDjangoML-master\\Model and data\\ResNet-50\\imagenet_class_index.json')
     for i, img_path in enumerate(img_paths):
         display(Image(img_path))
         print(most_likely_labels[i])
@@ -63,3 +71,4 @@ def image_upload_view(request):
     else:
         form = ImageForm()
     return render(request, 'index.html', {'form': form})
+ 
