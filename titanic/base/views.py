@@ -30,7 +30,8 @@ def home(request):
     return render(request, 'index.html')
 
 def getPredictions(img):
-    image_dir = 'D:\\4twin\s2\\pi\\validation2PI\\Pet-Connection-Backend\\public\\uploads\\'
+    image_dir = 'D:\\4twin\\s2\\validationfinale\\Pet-Connection-Backend\\public\\uploads'
+   
     
     # img_paths = [join(image_dir, filename) for filename in 
     #                         [img, 
@@ -43,7 +44,6 @@ def getPredictions(img):
     test_data = read_and_prep_images(img_paths)
     #flat_data = test_data.reshape((test_data.shape[0], -1))
     preds = my_model.predict(test_data)
-    
    
     most_likely_labels = decode_predictions(preds, top=3, class_list_path='D:\\4twin\\s2\\pi\\TitanicPredictionDjangoML-master\\Model and data\\ResNet-50\\imagenet_class_index.json')
     for i, img_path in enumerate(img_paths):
